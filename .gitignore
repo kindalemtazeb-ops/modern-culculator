@@ -1,0 +1,6 @@
+# የ AI ረዳት (Refact/Buddy) ፋይሎች ወደ GitHub እንዳይጫኑ
+.refact/
+
+# የ OS አላስፈላጊ ፋይሎች
+.DS_Store
+Thumbs.db
