@@ -1,35 +1,207 @@
 <!DOCTYPE html>
-<html lang="am">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Calc</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProCalc Suite — Scientific, Currency, Unit & Programmer</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="calc">
-        <div class="display" id="d">0</div>
-        <div class="buttons">
-            <button class="clr" onclick="c()">C</button>
-            <button class="clr" onclick="b()">⌫</button>
-            <button class="op" onclick="a('/')">/</button>
-            <button class="op" onclick="a('*')">×</button>
-            <button class="num" onclick="a('1')">1</button>
-            <button class="num" onclick="a('2')">2</button>
-            <button class="num" onclick="a('3')">3</button>
-            <button class="op" onclick="a('-')">-</button>
-            <button class="num" onclick="a('4')">4</button>
-            <button class="num" onclick="a('5')">5</button>
-            <button class="num" onclick="a('6')">6</button>
-            <button class="op" onclick="a('+')">+</button>
-            <button class="num" onclick="a('7')">7</button>
-            <button class="num" onclick="a('8')">8</button>
-            <button class="num" onclick="a('9')">9</button>
-            <button class="op" onclick="a('%')">%</button>
-            <button class="eq" onclick="e()">=</button>
-            <button class="num" onclick="a('.')">.</button>
-            <button class="num" onclick="a('0')">0</button>
-        </div>
-    </div>
+    <main class="app-wrapper">
+        <section class="calculator" aria-label="ProCalc Suite">
+            <header class="calc-header">
+                <div class="header-left">
+                    <span class="brand-badge">PRO CALC</span>
+                    <span class="mem-badge" id="memBadge" hidden>M</span>
+                </div>
+                <div class="header-actions">
+                    <button type="button" class="mode-btn" id="angleModeBtn" title="Switch Angle Unit">DEG</button>
+                    <button type="button" class="icon-btn" id="historyToggle" title="Toggle History">🕒</button>
+                    <button type="button" class="icon-btn" id="exportBtn" title="Download History (.txt)">⬇</button>
+                    <button type="button" class="icon-btn" id="copyBtn" title="Copy Result">📋</button>
+                    <button type="button" class="icon-btn" id="themeToggle" title="Toggle Theme">🌙</button>
+                </div>
+            </header>
+
+            <nav class="suite-tabs" aria-label="Calculator Modes">
+                <button type="button" class="tab-btn active" data-tab="sci">Scientific</button>
+                <button type="button" class="tab-btn" data-tab="curr">Currency</button>
+                <button type="button" class="tab-btn" data-tab="unit">Units</button>
+                <button type="button" class="tab-btn" data-tab="prog">Programmer</button>
+            </nav>
+
+            <div class="history-panel" id="historyPanel" hidden>
+                <div class="history-header">
+                    <span>History</span>
+                    <button type="button" id="clearHistory" class="clear-history-btn">Clear</button>
+                </div>
+                <ul class="history-list" id="historyList">
+                    <li class="history-empty">No calculations yet</li>
+                </ul>
+            </div>
+
+            <!-- TAB 1: SCIENTIFIC CALCULATOR -->
+            <div class="tab-panel active" id="tab-sci">
+                <div class="display-box">
+                    <div class="expression" id="expression"></div>
+                    <div class="display" id="display">0</div>
+                </div>
+
+                <div class="mem-row">
+                    <button type="button" class="btn btn-mem" data-mem="MC" title="Memory Clear">MC</button>
+                    <button type="button" class="btn btn-mem" data-mem="MR" title="Memory Recall">MR</button>
+                    <button type="button" class="btn btn-mem" data-mem="M+" title="Memory Add">M+</button>
+                    <button type="button" class="btn btn-mem" data-mem="M-" title="Memory Subtract">M-</button>
+                    <button type="button" class="btn btn-sci" data-fn="rand" title="Random Number (0-1)">Rand</button>
+                </div>
+
+                <div class="sci-grid">
+                    <button type="button" class="btn btn-sci" data-fn="sqrt" title="Square Root">√x</button>
+                    <button type="button" class="btn btn-sci" data-fn="cbrt" title="Cube Root">∛x</button>
+                    <button type="button" class="btn btn-value" data-value="yroot(" title="Y-th Root">ʸ√x</button>
+                    <button type="button" class="btn btn-sci" data-fn="square" title="Square">x²</button>
+                    <button type="button" class="btn btn-sci" data-fn="cube" title="Cube">x³</button>
+                    <button type="button" class="btn btn-value" data-value="^" title="Power">xʸ</button>
+
+                    <button type="button" class="btn btn-sci" data-fn="sin">sin</button>
+                    <button type="button" class="btn btn-sci" data-fn="cos">cos</button>
+                    <button type="button" class="btn btn-sci" data-fn="tan">tan</button>
+                    <button type="button" class="btn btn-sci" data-fn="asin">sin⁻¹</button>
+                    <button type="button" class="btn btn-sci" data-fn="acos">cos⁻¹</button>
+                    <button type="button" class="btn btn-sci" data-fn="atan">tan⁻¹</button>
+
+                    <button type="button" class="btn btn-sci" data-fn="sinh">sinh</button>
+                    <button type="button" class="btn btn-sci" data-fn="cosh">cosh</button>
+                    <button type="button" class="btn btn-sci" data-fn="tanh">tanh</button>
+                    <button type="button" class="btn btn-sci" data-fn="log">log₁₀</button>
+                    <button type="button" class="btn btn-sci" data-fn="log2">log₂</button>
+                    <button type="button" class="btn btn-sci" data-fn="ln">ln</button>
+
+                    <button type="button" class="btn btn-sci" data-fn="inv" title="Reciprocal">1/x</button>
+                    <button type="button" class="btn btn-sci" data-fn="fact" title="Factorial">n!</button>
+                    <button type="button" class="btn btn-sci" data-fn="exp" title="e^x">eˣ</button>
+                    <button type="button" class="btn btn-sci" data-fn="abs" title="Absolute Value">|x|</button>
+                    <button type="button" class="btn btn-const" data-const="PI" title="Pi">π</button>
+                    <button type="button" class="btn btn-const" data-const="E" title="Euler's Number">e</button>
+                </div>
+
+                <div class="buttons">
+                    <button type="button" class="btn btn-fn" data-action="clear">C</button>
+                    <button type="button" class="btn btn-fn" data-action="backspace">⌫</button>
+                    <button type="button" class="btn btn-fn" data-fn="sign">±</button>
+                    <button type="button" class="btn btn-op" data-value="%">%</button>
+                    <button type="button" class="btn btn-op" data-value="/">÷</button>
+
+                    <button type="button" class="btn btn-num" data-value="7">7</button>
+                    <button type="button" class="btn btn-num" data-value="8">8</button>
+                    <button type="button" class="btn btn-num" data-value="9">9</button>
+                    <button type="button" class="btn btn-op" data-value="*">×</button>
+                    <button type="button" class="btn btn-value" data-value="(">(</button>
+
+                    <button type="button" class="btn btn-num" data-value="4">4</button>
+                    <button type="button" class="btn btn-num" data-value="5">5</button>
+                    <button type="button" class="btn btn-num" data-value="6">6</button>
+                    <button type="button" class="btn btn-op" data-value="-">−</button>
+                    <button type="button" class="btn btn-value" data-value=")">)</button>
+
+                    <button type="button" class="btn btn-num" data-value="1">1</button>
+                    <button type="button" class="btn btn-num" data-value="2">2</button>
+                    <button type="button" class="btn btn-num" data-value="3">3</button>
+                    <button type="button" class="btn btn-op" data-value="+">+</button>
+                    <button type="button" class="btn btn-eq btn-tall" data-action="equals">=</button>
+
+                    <button type="button" class="btn btn-num btn-zero" data-value="0">0</button>
+                    <button type="button" class="btn btn-num" data-value=".">.</button>
+                    <button type="button" class="btn btn-sci" data-fn="sq10" title="10^x">10ˣ</button>
+                </div>
+            </div>
+
+            <!-- TAB 2: CURRENCY CONVERTER -->
+            <div class="tab-panel" id="tab-curr">
+                <div class="tool-card">
+                    <label class="tool-label" for="currAmount">Amount</label>
+                    <input type="number" id="currAmount" class="tool-input" value="100" step="any">
+
+                    <div class="tool-row">
+                        <div class="tool-col">
+                            <label class="tool-label" for="currFrom">From</label>
+                            <select id="currFrom" class="tool-select">
+                                <option value="USD">USD ($)</option>
+                                <option value="ETB">ETB (Br)</option>
+                                <option value="EUR">EUR (€)</option>
+                                <option value="GBP">GBP (£)</option>
+                            </select>
+                        </div>
+                        <div class="tool-col">
+                            <label class="tool-label" for="currTo">To</label>
+                            <select id="currTo" class="tool-select">
+                                <option value="ETB" selected>ETB (Br)</option>
+                                <option value="USD">USD ($)</option>
+                                <option value="EUR">EUR (€)</option>
+                                <option value="GBP">GBP (£)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <label class="tool-label" for="currRate">1 USD Rate (Editable)</label>
+                    <input type="number" id="currRate" class="tool-input" value="120" step="0.01">
+
+                    <div class="result-box" id="currResult">100 USD = 12,000 ETB</div>
+                </div>
+            </div>
+
+            <!-- TAB 3: UNIT CONVERTER -->
+            <div class="tab-panel" id="tab-unit">
+                <div class="tool-card">
+                    <label class="tool-label" for="unitCategory">Category</label>
+                    <select id="unitCategory" class="tool-select">
+                        <option value="length">Length (m, km, cm, mi)</option>
+                        <option value="weight">Weight (kg, g, lb)</option>
+                        <option value="temp">Temperature (°C, °F, K)</option>
+                    </select>
+
+                    <label class="tool-label" for="unitValue">Value</label>
+                    <input type="number" id="unitValue" class="tool-input" value="1" step="any">
+
+                    <div class="tool-row">
+                        <div class="tool-col">
+                            <label class="tool-label" for="unitFrom">From</label>
+                            <select id="unitFrom" class="tool-select"></select>
+                        </div>
+                        <div class="tool-col">
+                            <label class="tool-label" for="unitTo">To</label>
+                            <select id="unitTo" class="tool-select"></select>
+                        </div>
+                    </div>
+
+                    <div class="result-box" id="unitResult">1 m = 0.001 km</div>
+                </div>
+            </div>
+
+            <!-- TAB 4: PROGRAMMER MODE -->
+            <div class="tab-panel" id="tab-prog">
+                <div class="tool-card">
+                    <label class="tool-label" for="progDec">Decimal (Base 10 Integer)</label>
+                    <input type="number" id="progDec" class="tool-input" value="255" step="1">
+
+                    <div class="base-grid">
+                        <div class="base-box">
+                            <span class="base-tag">HEX</span>
+                            <span class="base-val" id="progHex">FF</span>
+                        </div>
+                        <div class="base-box">
+                            <span class="base-tag">BIN</span>
+                            <span class="base-val" id="progBin">11111111</span>
+                        </div>
+                        <div class="base-box">
+                            <span class="base-tag">OCT</span>
+                            <span class="base-val" id="progOct">377</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 
     <script src="script.js"></script>
 </body>
