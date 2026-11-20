@@ -501,7 +501,7 @@ const unitOptions = {
         { id: 'lb', label: 'Pound (lb)', factor: 0.45359237 }
     ],
     area: [
-        { id: 'ha', label: 'Hectare / ሄክታር (ha)', factor: 10000 },
+        { id: 'ha', label: 'Hectare / ሄክታር (ha = 10,000 m²)', factor: 10000 },
         { id: 'm2', label: 'Square Meter (m²)', factor: 1 }
     ],
     temp: [
@@ -525,7 +525,6 @@ function populateUnits() {
     });
     updateUnits();
 }
-
 function updateUnits() {
     if (!unitCategory || !unitValue || !unitFrom || !unitTo || !unitResult) return;
     const val = parseFloat(unitValue.value) || 0;
