@@ -28,6 +28,7 @@
                 <button type="button" class="tab-btn" data-tab="curr">Currency</button>
                 <button type="button" class="tab-btn" data-tab="unit">Units</button>
                 <button type="button" class="tab-btn" data-tab="prog">Programmer</button>
+                <button type="button" class="tab-btn" data-tab="ethio">Ethio Tax & VAT</button>
             </nav>
 
             <div class="history-panel" id="historyPanel" hidden>
@@ -143,7 +144,7 @@
                         </div>
                     </div>
 
-                    <label class="tool-label" for="currRate">1 USD Rate (Editable)</label>
+                    <label class="tool-label" for="currRate">1 USD in ETB (Birr Rate)</label>
                     <input type="number" id="currRate" class="tool-input" value="120" step="0.01">
 
                     <div class="result-box" id="currResult">100 USD = 12,000 ETB</div>
@@ -178,26 +179,103 @@
                 </div>
             </div>
 
-            <!-- TAB 4: PROGRAMMER MODE -->
+           <!-- TAB 4: PROGRAMMER MODE -->
             <div class="tab-panel" id="tab-prog">
                 <div class="tool-card">
-                    <label class="tool-label" for="progDec">Decimal (Base 10 Integer)</label>
-                    <input type="number" id="progDec" class="tool-input" value="255" step="1">
+                    <div class="tool-row">
+                        <div class="tool-col">
+                            <label class="tool-label" for="progFrom">From Base</label>
+                            <select id="progFrom" class="tool-select">
+                                <option value="10" selected>Decimal (DEC - Base 10)</option>
+                                <option value="16">Hexadecimal (HEX - Base 16)</option>
+                                <option value="2">Binary (BIN - Base 2)</option>
+                                <option value="8">Octal (OCT - Base 8)</option>
+                            </select>
+                        </div>
+                        <div class="tool-col">
+                            <label class="tool-label" for="progTo">To Base</label>
+                            <select id="progTo" class="tool-select">
+                                <option value="16" selected>Hexadecimal (HEX - Base 16)</option>
+                                <option value="2">Binary (BIN - Base 2)</option>
+                                <option value="8">Octal (OCT - Base 8)</option>
+                                <option value="10">Decimal (DEC - Base 10)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <label class="tool-label" for="progInput">Input Value</label>
+                    <input type="text" id="progInput" class="tool-input" value="249" placeholder="Enter value...">
+
+                    <div class="result-box" id="progConvertedResult">249 (DEC) = F9 (HEX)</div>
 
                     <div class="base-grid">
                         <div class="base-box">
+                            <span class="base-tag">DEC</span>
+                            <span class="base-val" id="progDec">249</span>
+                        </div>
+                        <div class="base-box">
                             <span class="base-tag">HEX</span>
-                            <span class="base-val" id="progHex">FF</span>
+                            <span class="base-val" id="progHex">F9</span>
                         </div>
                         <div class="base-box">
                             <span class="base-tag">BIN</span>
-                            <span class="base-val" id="progBin">11111111</span>
+                            <span class="base-val" id="progBin">11111001</span>
                         </div>
                         <div class="base-box">
                             <span class="base-tag">OCT</span>
-                            <span class="base-val" id="progOct">377</span>
+                            <span class="base-val" id="progOct">371</span>
                         </div>
                     </div>
+                </div>
+            </div>
+            <!-- TAB 5: ETHIOPIA TAX, SALARY & VAT / TRADE -->
+            <div class="tab-panel" id="tab-ethio">
+                <div class="tool-card">
+                    <h3 class="tool-section-title">Ethiopia Monthly Salary & Income Tax</h3>
+                    <label class="tool-label" for="grossSalary">Gross Monthly Salary (ETB)</label>
+                    <input type="number" id="grossSalary" class="tool-input" value="15000" min="0" step="any">
+
+                    <div class="ethio-summary-grid">
+                        <div class="ethio-stat-box">
+                            <span class="ethio-stat-label">Income Tax</span>
+                            <span class="ethio-stat-val" id="ethioIncomeTax">0 ETB</span>
+                        </div>
+                        <div class="ethio-stat-box">
+                            <span class="ethio-stat-label">Employee Pension (7%)</span>
+                            <span class="ethio-stat-val" id="ethioPension">0 ETB</span>
+                        </div>
+                        <div class="ethio-stat-box">
+                            <span class="ethio-stat-label">Net Salary (Take-Home)</span>
+                            <span class="ethio-stat-val highlight" id="ethioNetSalary">0 ETB</span>
+                        </div>
+                        <div class="ethio-stat-box">
+                            <span class="ethio-stat-label">Employer Pension (11%)</span>
+                            <span class="ethio-stat-val" id="ethioEmployerPension">0 ETB</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tool-card">
+                    <h3 class="tool-section-title">15% VAT & Profit / Discount</h3>
+                    <label class="tool-label" for="tradeAmount">Base / Item Price (ETB)</label>
+                    <input type="number" id="tradeAmount" class="tool-input" value="1000" min="0" step="any">
+
+                    <div class="tool-row">
+                        <div class="tool-col">
+                            <label class="tool-label" for="vatMode">VAT Mode</label>
+                            <select id="vatMode" class="tool-select">
+                                <option value="add15" selected>Add 15% VAT (Exclusive -> Inclusive)</option>
+                                <option value="extract15">Extract 15% VAT (Inclusive -> Base)</option>
+                            </select>
+                        </div>
+                        <div class="tool-col">
+                            <label class="tool-label" for="profitMarginPct">Profit Margin (%)</label>
+                            <input type="number" id="profitMarginPct" class="tool-input" value="20" min="0" step="any">
+                        </div>
+                    </div>
+
+                    <div class="result-box" id="vatResultBox">VAT (15%): 150 ETB | Total: 1,150 ETB</div>
+                    <div class="result-box secondary-result" id="profitResultBox">Selling Price (20%): 1,200 ETB | Profit: 200 ETB</div>
                 </div>
             </div>
         </section>

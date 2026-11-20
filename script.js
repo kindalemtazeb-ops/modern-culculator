@@ -346,7 +346,8 @@ document.querySelectorAll('.tab-btn').forEach(tab => {
         document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
         tab.classList.add('active');
-        document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
+        const panel = document.getElementById(`tab-${tab.dataset.tab}`);
+        if (panel) panel.classList.add('active');
     });
 });
 
@@ -408,7 +409,8 @@ copyBtn.addEventListener('click', () => {
 });
 
 document.addEventListener('keydown', (e) => {
-    if (!document.getElementById('tab-sci').classList.contains('active')) return;
+    const sciTab = document.getElementById('tab-sci');
+    if (!sciTab || !sciTab.classList.contains('active')) return;
     if ((e.key >= '0' && e.key <= '9') || ['+', '-', '*', '/', '%', '^', '(', ')', '.'].includes(e.key)) {
         appendValue(e.key);
     } else if (e.key === 'Enter' || e.key === '=') {
@@ -421,35 +423,64 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Currency Converter (rates relative to 1 USD)
+// Currency Converter
 const currAmount = document.getElementById('currAmount');
 const currFrom = document.getElementById('currFrom');
 const currTo = document.getElementById('currTo');
 const currRate = document.getElementById('currRate');
 const currResult = document.getElementById('currResult');
 
+// Base reference rates relative to 1 USD
+const baseRates = {
+    USD: 1,
+    EUR: 0.92,
+    GBP: 0.79
+};
+
 function updateCurrency() {
+    if (!currAmount || !currFrom || !currTo || !currRate || !currResult) return;
     const amt = parseFloat(currAmount.value) || 0;
-    const usdToEtb = parseFloat(currRate.value) || 120;
-    const ratesPerUsd = {
-        USD: 1,
-        ETB: usdToEtb,
-        EUR: 0.92,
-        GBP: 0.79
-    };
     const from = currFrom.value;
     const to = currTo.value;
-    const inUsd = amt / ratesPerUsd[from];
-    const converted = inUsd * ratesPerUsd[to];
+    const rateVal = parseFloat(currRate.value) || 120;
+
+    if (from === to) {
+        currResult.textContent = `${amt} ${from} = ${Number(amt.toFixed(4)).toLocaleString()} ${to}`;
+        return;
+    }
+
+    let converted = 0;
+
+    if (from === 'ETB') {
+        // ETB -> USD, EUR, or GBP
+        const inUsd = amt / rateVal;
+        converted = to === 'USD' ? inUsd : inUsd * baseRates[to];
+    } else if (to === 'ETB') {
+        // USD, EUR, or GBP -> ETB
+        const inUsd = amt / baseRates[from];
+        converted = inUsd * rateVal;
+    } else if ((from === 'EUR' && to === 'GBP') || (from === 'GBP' && to === 'EUR')) {
+        // EUR <-> GBP scales with rateVal changes
+        const inUsd = amt / baseRates[from];
+        const baseConverted = inUsd * baseRates[to];
+        converted = baseConverted * (rateVal / 120);
+    } else {
+        // Other non-ETB pairs (e.g., USD <-> EUR, USD <-> GBP)
+        const inUsd = amt / baseRates[from];
+        converted = inUsd * baseRates[to];
+    }
+
     currResult.textContent = `${amt} ${from} = ${Number(converted.toFixed(4)).toLocaleString()} ${to}`;
 }
 
 [currAmount, currFrom, currTo, currRate].forEach(el => {
-    el.addEventListener('input', updateCurrency);
-    el.addEventListener('change', updateCurrency);
+    if (el) {
+        el.addEventListener('input', updateCurrency);
+        el.addEventListener('change', updateCurrency);
+    }
 });
 
-// Unit Converter
+// Unit Converter (includes Ethiopia Quintal & Hectare)
 const unitCategory = document.getElementById('unitCategory');
 const unitValue = document.getElementById('unitValue');
 const unitFrom = document.getElementById('unitFrom');
@@ -465,8 +496,13 @@ const unitOptions = {
     ],
     weight: [
         { id: 'kg', label: 'Kilogram (kg)', factor: 1 },
+        { id: 'qtl', label: 'Quintal / ኩንታል (qtl = 100 kg)', factor: 100 },
         { id: 'g', label: 'Gram (g)', factor: 0.001 },
         { id: 'lb', label: 'Pound (lb)', factor: 0.45359237 }
+    ],
+    area: [
+        { id: 'ha', label: 'Hectare / ሄክታር (ha)', factor: 10000 },
+        { id: 'm2', label: 'Square Meter (m²)', factor: 1 }
     ],
     temp: [
         { id: 'C', label: 'Celsius (°C)' },
@@ -476,7 +512,8 @@ const unitOptions = {
 };
 
 function populateUnits() {
-    const list = unitOptions[unitCategory.value];
+    if (!unitCategory || !unitFrom || !unitTo) return;
+    const list = unitOptions[unitCategory.value] || unitOptions.length;
     unitFrom.innerHTML = '';
     unitTo.innerHTML = '';
     list.forEach((u, idx) => {
@@ -490,6 +527,7 @@ function populateUnits() {
 }
 
 function updateUnits() {
+    if (!unitCategory || !unitValue || !unitFrom || !unitTo || !unitResult) return;
     const val = parseFloat(unitValue.value) || 0;
     const cat = unitCategory.value;
     const from = unitFrom.value;
@@ -515,40 +553,218 @@ function updateUnits() {
     unitResult.textContent = `${val} ${from} = ${Number(out.toFixed(6))} ${to}`;
 }
 
-unitCategory.addEventListener('change', populateUnits);
+if (unitCategory) {
+    unitCategory.addEventListener('change', populateUnits);
+}
 [unitValue, unitFrom, unitTo].forEach(el => {
-    el.addEventListener('input', updateUnits);
-    el.addEventListener('change', updateUnits);
+    if (el) {
+        el.addEventListener('input', updateUnits);
+        el.addEventListener('change', updateUnits);
+    }
 });
 
-// Programmer Mode
+// Programmer Mode (16 base-to-base combinations across DEC, HEX, BIN, OCT)
+const progFrom = document.getElementById('progFrom');
+const progTo = document.getElementById('progTo');
+const progInput = document.getElementById('progInput');
+const progConvertedResult = document.getElementById('progConvertedResult');
 const progDec = document.getElementById('progDec');
 const progHex = document.getElementById('progHex');
 const progBin = document.getElementById('progBin');
 const progOct = document.getElementById('progOct');
 
+const baseLabels = {
+    10: 'DEC',
+    16: 'HEX',
+    2: 'BIN',
+    8: 'OCT'
+};
+
+function isValidForBase(str, base) {
+    if (!str) return false;
+    const patterns = {
+        2: /^[01]+$/,
+        8: /^[0-7]+$/,
+        10: /^-?\d+$/,
+        16: /^[0-9A-Fa-f]+$/
+    };
+    return patterns[base].test(str);
+}
+
 function updateProgrammer() {
-    const num = parseInt(progDec.value, 10);
-    if (isNaN(num)) {
+    if (!progInput || !progFrom || !progTo) return;
+
+    const fromBase = parseInt(progFrom.value, 10);
+    const toBase = parseInt(progTo.value, 10);
+    const raw = progInput.value.trim();
+
+    if (!raw) {
+        progDec.textContent = '0';
         progHex.textContent = '0';
         progBin.textContent = '0';
         progOct.textContent = '0';
+        progConvertedResult.textContent = `0 (${baseLabels[fromBase]}) = 0 (${baseLabels[toBase]})`;
         return;
     }
-    const sign = num < 0 ? '-' : '';
-    const absNum = Math.abs(num);
-    progHex.textContent = sign + absNum.toString(16).toUpperCase();
-    progBin.textContent = sign + absNum.toString(2);
-    progOct.textContent = sign + absNum.toString(8);
+
+    if (!isValidForBase(raw, fromBase)) {
+        progConvertedResult.textContent = `Invalid ${baseLabels[fromBase]} input`;
+        return;
+    }
+
+    const parsedValue = parseInt(raw, fromBase);
+    if (Number.isNaN(parsedValue)) {
+        progConvertedResult.textContent = 'Invalid number';
+        return;
+    }
+
+    const decVal = parsedValue.toString(10);
+    const hexVal = parsedValue.toString(16).toUpperCase();
+    const binVal = parsedValue.toString(2);
+    const octVal = parsedValue.toString(8);
+
+    progDec.textContent = decVal;
+    progHex.textContent = hexVal;
+    progBin.textContent = binVal;
+    progOct.textContent = octVal;
+
+    const targetConverted = parsedValue.toString(toBase).toUpperCase();
+    progConvertedResult.textContent = `${raw.toUpperCase()} (${baseLabels[fromBase]}) = ${targetConverted} (${baseLabels[toBase]})`;
 }
 
-progDec.addEventListener('input', updateProgrammer);
+[progFrom, progTo, progInput].forEach(el => {
+    if (el) {
+        el.addEventListener('input', updateProgrammer);
+        el.addEventListener('change', updateProgrammer);
+    }
+});
 
-// Initialize
+// Ethiopia Practical Units Helper (Quintal = 100 kg, Hectare = 10,000 m2)
+function convertEthioPracticalUnits(value, fromUnit, toUnit) {
+    const val = parseFloat(value) || 0;
+
+    // Weight: quintal (qtl) <-> kg
+    if (fromUnit === 'qtl' && toUnit === 'kg') return val * 100;
+    if (fromUnit === 'kg' && toUnit === 'qtl') return val / 100;
+
+    // Area: hectare (ha) <-> square meter (m2)
+    if (fromUnit === 'ha' && toUnit === 'm2') return val * 10000;
+    if (fromUnit === 'm2' && toUnit === 'ha') return val / 10000;
+
+    return null;
+}
+
+// Ethiopia Employment Income Tax & Pension Calculator (Monthly ETB)
+function calculateEthiopiaSalary(grossMonthly) {
+    const gross = Math.max(0, parseFloat(grossMonthly) || 0);
+    const employeePension = gross * 0.07;
+    const employerPension = gross * 0.11;
+
+    // Progressive employment income tax brackets (ETB/month)
+    let tax = 0;
+    if (gross <= 600) {
+        tax = 0;
+    } else if (gross <= 1650) {
+        tax = gross * 0.10 - 60;
+    } else if (gross <= 3200) {
+        tax = gross * 0.15 - 142.50;
+    } else if (gross <= 5250) {
+        tax = gross * 0.20 - 302.50;
+    } else if (gross <= 7800) {
+        tax = gross * 0.25 - 565.00;
+    } else if (gross <= 10900) {
+        tax = gross * 0.30 - 955.00;
+    } else {
+        tax = gross * 0.35 - 1500.00;
+    }
+
+    tax = Math.max(0, tax);
+    const netSalary = Math.max(0, gross - tax - employeePension);
+
+    return {
+        tax,
+        employeePension,
+        employerPension,
+        netSalary
+    };
+}
+
+const grossSalaryInput = document.getElementById('grossSalary');
+const ethioIncomeTaxEl = document.getElementById('ethioIncomeTax');
+const ethioPensionEl = document.getElementById('ethioPension');
+const ethioNetSalaryEl = document.getElementById('ethioNetSalary');
+const ethioEmployerPensionEl = document.getElementById('ethioEmployerPension');
+
+function updateEthioSalaryUI() {
+    if (!grossSalaryInput) return;
+    const res = calculateEthiopiaSalary(grossSalaryInput.value);
+    const fmt = (n) => `${Number(res[n].toFixed(2)).toLocaleString()} ETB`;
+
+    if (ethioIncomeTaxEl) ethioIncomeTaxEl.textContent = fmt('tax');
+    if (ethioPensionEl) ethioPensionEl.textContent = fmt('employeePension');
+    if (ethioNetSalaryEl) ethioNetSalaryEl.textContent = fmt('netSalary');
+    if (ethioEmployerPensionEl) ethioEmployerPensionEl.textContent = fmt('employerPension');
+}
+
+// 15% VAT & Profit Margin Calculator
+const tradeAmountInput = document.getElementById('tradeAmount');
+const vatModeSelect = document.getElementById('vatMode');
+const profitMarginInput = document.getElementById('profitMarginPct');
+const vatResultBox = document.getElementById('vatResultBox');
+const profitResultBox = document.getElementById('profitResultBox');
+
+function updateEthioTradeUI() {
+    if (!tradeAmountInput || !vatModeSelect || !profitMarginInput) return;
+
+    const amount = Math.max(0, parseFloat(tradeAmountInput.value) || 0);
+    const mode = vatModeSelect.value;
+    const marginPct = Math.max(0, parseFloat(profitMarginInput.value) || 0);
+
+    let vatAmount = 0;
+    let totalWithVat = 0;
+    let basePrice = amount;
+
+    if (mode === 'add15') {
+        vatAmount = amount * 0.15;
+        totalWithVat = amount + vatAmount;
+        if (vatResultBox) {
+            vatResultBox.textContent = `VAT (15%): ${Number(vatAmount.toFixed(2)).toLocaleString()} ETB | Total: ${Number(totalWithVat.toFixed(2)).toLocaleString()} ETB`;
+        }
+    } else {
+        basePrice = amount / 1.15;
+        vatAmount = amount - basePrice;
+        if (vatResultBox) {
+            vatResultBox.textContent = `Base Price: ${Number(basePrice.toFixed(2)).toLocaleString()} ETB | VAT (15%): ${Number(vatAmount.toFixed(2)).toLocaleString()} ETB`;
+        }
+    }
+
+    const profitAmount = basePrice * (marginPct / 100);
+    const sellingPrice = basePrice + profitAmount;
+
+    if (profitResultBox) {
+        profitResultBox.textContent = `Selling Price (${marginPct}%): ${Number(sellingPrice.toFixed(2)).toLocaleString()} ETB | Profit: ${Number(profitAmount.toFixed(2)).toLocaleString()} ETB`;
+    }
+}
+
+if (grossSalaryInput) {
+    grossSalaryInput.addEventListener('input', updateEthioSalaryUI);
+    grossSalaryInput.addEventListener('change', updateEthioSalaryUI);
+}
+
+[tradeAmountInput, vatModeSelect, profitMarginInput].forEach(el => {
+    if (el) {
+        el.addEventListener('input', updateEthioTradeUI);
+        el.addEventListener('change', updateEthioTradeUI);
+    }
+});
+
+// Initial setup
 loadState();
 renderHistory();
 updateMemoryBadge();
 updateDisplay();
-updateCurrency();
 populateUnits();
+updateCurrency();
 updateProgrammer();
+updateEthioSalaryUI();
+updateEthioTradeUI();

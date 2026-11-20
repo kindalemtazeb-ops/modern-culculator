@@ -41,24 +41,32 @@ body.light-theme {
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
+html, body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
 body {
     min-height: 100vh;
-    width: 100%;
+    overflow-y: auto;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     background: var(--bg-gradient);
     color: var(--text-main);
-    padding: 8px 14px;
+    padding: 12px 10px 24px;
     transition: background 0.3s ease, color 0.3s ease;
 }
 
 .app-wrapper {
     width: 100%;
     max-width: 450px;
+    min-width: 0;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    margin: auto 0;
 }
 
 .calculator {
@@ -67,7 +75,7 @@ body {
     min-width: 0;
     background: var(--card-bg);
     border-radius: 22px;
-    padding: 11px 14px;
+    padding: 11px 13px;
     box-shadow: var(--shadow);
     border: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -139,8 +147,8 @@ body {
 
 .suite-tabs {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 4px;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 3px;
     background: var(--display-bg);
     padding: 3px;
     border-radius: 10px;
@@ -151,11 +159,13 @@ body {
     border: none;
     background: transparent;
     color: var(--text-muted);
-    font-size: 0.7rem;
+    font-size: 0.63rem;
     font-weight: 700;
-    padding: 5px 4px;
+    padding: 6px 2px;
     border-radius: 8px;
     cursor: pointer;
+    white-space: nowrap;
+    min-width: 0;
     transition: background 0.15s ease, color 0.15s ease;
 }
 
@@ -166,10 +176,13 @@ body {
 
 .tab-panel {
     display: none;
+    min-width: 0;
 }
 
 .tab-panel.active {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .display-box {
@@ -339,52 +352,65 @@ body {
 /* Converter & Programmer Panels */
 .tool-card {
     background: var(--display-bg);
-    border-radius: 16px;
-    padding: 14px;
+    border-radius: 14px;
+    padding: 10px 11px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 7px;
     border: 1px solid var(--sci-border);
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .tool-label {
-    font-size: 0.76rem;
+    font-size: 0.72rem;
     color: var(--text-muted);
     font-weight: 600;
 }
 
 .tool-input, .tool-select {
     width: 100%;
-    padding: 9px 11px;
-    border-radius: 10px;
+    min-width: 0;
+    max-width: 100%;
+    padding: 7px 9px;
+    border-radius: 9px;
     border: 1px solid var(--sci-border);
     background: var(--sci-bg);
     color: var(--text-main);
-    font-size: 0.92rem;
+    font-size: 0.84rem;
 }
 
 .tool-row {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
+    gap: 7px;
+    min-width: 0;
 }
 
 .tool-col {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
+    min-width: 0;
 }
 
 .result-box {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     background: var(--card-bg);
     border: 1px solid var(--op-bg);
-    border-radius: 12px;
-    padding: 12px;
+    border-radius: 10px;
+    padding: 8px 10px;
     text-align: center;
-    font-size: 1rem;
+    font-size: 0.82rem;
+    line-height: 1.35;
     font-weight: 700;
     color: var(--text-main);
+    white-space: normal;
     overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .base-grid {
@@ -414,4 +440,52 @@ body {
     font-size: 0.9rem;
     font-weight: 600;
     overflow-wrap: anywhere;
+}
+
+.tool-section-title {
+    margin: 0 0 2px 0;
+    font-size: 0.86rem;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    overflow-wrap: anywhere;
+}
+
+.ethio-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    margin-top: 2px;
+    min-width: 0;
+}
+
+.ethio-stat-box {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 9px;
+    padding: 7px 9px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.ethio-stat-label {
+    font-size: 0.68rem;
+    opacity: 0.8;
+    overflow-wrap: anywhere;
+}
+
+.ethio-stat-val {
+    font-size: 0.82rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.ethio-stat-val.highlight {
+    color: #f59e0b;
+}
+
+.secondary-result {
+    margin-top: 0;
 }
